@@ -2,3 +2,14 @@
 .design/
 frontend/dist/
 build/
+docs
+scripts
+
+.env
+.env.*
+!*.env.example
+!**/.env.example
+deploy/.env
+frontend/node_modules/
+*.tar
+build/release/.env

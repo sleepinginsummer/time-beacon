@@ -1,0 +1,1 @@
+PWA icons should be placed at public/icons/pwa-192.png and public/icons/pwa-512.png before production release.
