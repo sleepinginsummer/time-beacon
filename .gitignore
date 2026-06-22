@@ -13,3 +13,4 @@ deploy/.env
 frontend/node_modules/
 *.tar
 build/release/.env
+*.tsbuildinfo
