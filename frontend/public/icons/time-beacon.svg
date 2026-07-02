@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 24 24" role="img" aria-label="时间信标">
+  <defs>
+    <linearGradient id="bg" x1="2" y1="1.5" x2="22" y2="22.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#0c5f59"/>
+    </linearGradient>
+  </defs>
+  <rect width="24" height="24" rx="6.4" fill="url(#bg)"/>
+  <path d="M6 6.5h8.5a4.5 4.5 0 0 1 0 9H10" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M18 17.5H9.5a4.5 4.5 0 0 1 0-9H14" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="6" cy="6.5" r="2.2" fill="#ffffff"/>
+  <circle cx="18" cy="17.5" r="2.2" fill="#ffffff"/>
+</svg>

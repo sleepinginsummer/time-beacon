@@ -59,13 +59,14 @@ func RunNotificationScan(db *sql.DB, now time.Time) error {
 // 启动阶段使用 startup 渠道单独记录，避免容器重启时重复发送；日常定时和手动触发仍按 email 渠道独立判断。
 func RunStartupNotificationScan(db *sql.DB, now time.Time) error {
 	cleanupNotificationLogs(db, now)
-	return runNotificationScanWithChannel(db, now, 0, "startup")
+	return runNotificationScanWithChannel(db, now, 0, "startup", false)
 }
 
 // RunNotificationScanForUser 仅扫描指定用户，用于页面“立刻检查通知”。
 func RunNotificationScanForUser(db *sql.DB, now time.Time, targetUserID int64) error {
 	cleanupNotificationLogs(db, now)
-	return runEmailNotificationScan(db, now, targetUserID)
+	// 页面手动触发用于人工补发/测试，跳过当天重复发送检查；定时任务仍保留去重。
+	return runNotificationScanWithChannel(db, now, targetUserID, "manual", true)
 }
 
 type notificationCandidate struct {
@@ -199,10 +200,10 @@ func advanceAutoRenewSubscriptions(db *sql.DB, now time.Time, targetUserID int64
 }
 
 func runEmailNotificationScan(db *sql.DB, now time.Time, targetUserID int64) error {
-	return runNotificationScanWithChannel(db, now, targetUserID, "email")
+	return runNotificationScanWithChannel(db, now, targetUserID, "email", false)
 }
 
-func runNotificationScanWithChannel(db *sql.DB, now time.Time, targetUserID int64, logChannel string) error {
+func runNotificationScanWithChannel(db *sql.DB, now time.Time, targetUserID int64, logChannel string, skipDuplicateCheck bool) error {
 	// days_before 表示提醒窗口：7 表示到期前 7 天内每天提醒，3 同理。
 	// 多个窗口重叠时只选最小可匹配窗口，避免同一订阅同一天重复进入多个规则。
 	query := `select r.id,r.user_id,r.days_before,s.id,s.name,date_format(s.next_renewal_date,'%Y-%m-%d')
@@ -233,7 +234,7 @@ where r.enabled=1 and r.deleted=0
 		if err := rows.Scan(&c.RuleID, &c.UserID, &c.Days, &c.SubID, &c.SubName, &c.RenewalDate); err != nil {
 			return err
 		}
-		if alreadyNotified(db, c.UserID, c.SubID, c.RuleID, now, logChannel) {
+		if !skipDuplicateCheck && alreadyNotified(db, c.UserID, c.SubID, c.RuleID, now, logChannel) {
 			continue
 		}
 		c.DaysLeft = daysUntil(now, c.RenewalDate)
